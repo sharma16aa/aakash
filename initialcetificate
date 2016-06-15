@@ -39,16 +39,16 @@ $pdf->AddPage();
 if ($certificate->orientation == 'L') {
     $x = 10;
     $y = 30;
-    $sealx = 230;
-    $sealy = 150;
-    $sigx = 47;
-    $sigy = 155;
+	$sealx = 82;
+    $sealy = 17;
+    $sigx = 122;
+    $sigy = 260;
     $custx = 47;
     $custy = 155;
-    $wmarkx = 40;
+    $wmarkx = 75;
     $wmarky = 31;
-    $wmarkw = 212;
-    $wmarkh = 148;
+    $wmarkw = 150;
+    $wmarkh = 150;
     $brdrx = 0;
     $brdry = 0;
     $brdrw = 297;
@@ -56,11 +56,11 @@ if ($certificate->orientation == 'L') {
     $codey = 175;
 } else { // Portrait
     $x = 10;
-    $y = 40;
-    $sealx = 150;
-    $sealy = 220;
-    $sigx = 30;
-    $sigy = 230;
+    $y = 28;
+    $sealx = 77;
+    $sealy = 15;
+    $sigx = 77;
+    $sigy = 225;
     $custx = 30;
     $custy = 230;
     $wmarkx = 26;
@@ -88,19 +88,39 @@ $pdf->SetAlpha(1);
 certificate_print_image($pdf, $certificate, CERT_IMAGE_SEAL, $sealx, $sealy, '', '');
 certificate_print_image($pdf, $certificate, CERT_IMAGE_SIGNATURE, $sigx, $sigy, '', '');
 
-// Add text
-$pdf->SetTextColor(0, 0, 120);
-certificate_print_text($pdf, $x, $y, 'C', $fontsans, '', 30, get_string('title', 'certificate'));
 $pdf->SetTextColor(0, 0, 0);
-certificate_print_text($pdf, $x, $y + 20, 'C', $fontserif, '', 20, get_string('certify', 'certificate'));
-certificate_print_text($pdf, $x, $y + 36, 'C', $fontsans, '', 30, fullname($USER));
-certificate_print_text($pdf, $x, $y + 55, 'C', $fontsans, '', 20, get_string('statement', 'certificate'));
-certificate_print_text($pdf, $x, $y + 72, 'C', $fontsans, '', 20, format_string($course->fullname));
-certificate_print_text($pdf, $x, $y + 92, 'C', $fontsans, '', 14,  certificate_get_date($certificate, $certrecord, $course));
-certificate_print_text($pdf, $x, $y + 102, 'C', $fontserif, '', 10, certificate_get_grade($certificate, $course));
-certificate_print_text($pdf, $x, $y + 112, 'C', $fontserif, '', 10, certificate_get_outcome($certificate, $course));
+certificate_print_text($pdf, $x, $y + 235, 'C', $fontsans, '', 14, get_string('fste', 'certificate'));
+
+$pdf->SetTextColor(0, 0, 0);
+
+// Get user grade
+$grade = certificate_get_grade($certificate, $course);
+$grade = substr($grade, 14);
+
+if($grade < 50.00){
+  certificate_print_text($pdf, $x+61, $y + 160, 'L', $fontserif, '', 14, get_string('title_participation', 'certificate'));
+}  
+elseif($grade >=50.00 && $grade <= 63.00){
+  certificate_print_text($pdf, $x+61, $y + 160, 'L', $fontserif, '', 14, get_string('title_pass', 'certificate')); 
+}
+elseif($grade >=64.00 && $grade <= 77.00){
+  certificate_print_text($pdf, $x+61, $y + 160, 'L', $fontserif, '', 14, get_string('title_credit', 'certificate'));           
+}
+else{
+  certificate_print_text($pdf, $x+61, $y + 160, 'L', $fontserif, '', 14, get_string('title_distinction', 'certificate'));		   
+}
+
+$pdf->SetTextColor(0, 0, 0);
+
+certificate_print_text($pdf, $x, $y + 30, 'L', $fontsans,'', 14, get_string('certify', 'certificate'));
+certificate_print_text($pdf, $x+40, $y + 30, 'L', $fontsans, '', 14, fullname($USER));
+certificate_print_text($pdf, $x, $y + 62, 'L', $fontsans, '', 12, get_string('statement-success', 'certificate'));
+certificate_print_text($pdf, $x, $y + 20, 'C', $fontsans, '', 20, format_string($course->fullname));
+certificate_print_text($pdf, $x+150, $y + 160, 'L', $fontserif, '', 14,  certificate_get_date($certificate, $certrecord, $course));
+certificate_print_text($pdf, $x, $y + 132, 'C', $fontserif, '', 10, certificate_get_outcome($certificate, $course));
+
 if ($certificate->printhours) {
-    certificate_print_text($pdf, $x, $y + 122, 'C', $fontserif, '', 10, get_string('credithours', 'certificate') . ': ' . $certificate->printhours);
+	certificate_print_text($pdf, $x, $y + 142, 'C', $fontserif, '', 10, get_string('credithours', 'certificate') . ': ' . $certificate->printhours);
 }
 certificate_print_text($pdf, $x, $codey, 'C', $fontserif, '', 10, certificate_get_code($certificate, $certrecord));
 $i = 0;
@@ -114,4 +134,6 @@ if ($certificate->printteacher) {
     }
 }
 
+certificate_print_text($pdf, $x, $y + 135, 'L', $fontserif,'', 14, get_string('person', 'certificate'));
+certificate_print_text($pdf, $x, $y + 210, 'C', $fontserif,'', 17, get_string('person_title', 'certificate'));
 certificate_print_text($pdf, $custx, $custy, 'L', null, null, null, $certificate->customtext);
